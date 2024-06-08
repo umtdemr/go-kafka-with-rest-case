@@ -1,7 +1,9 @@
 package main
 
-import "github.com/umtdemr/go-kafka-with-rest-case/pkg/decoder"
+import (
+	"github.com/umtdemr/go-kafka-with-rest-case/pkg/server"
+)
 
 func main() {
-	decoder.Decode()
+	server.Run()
 }
