@@ -1,7 +1,8 @@
 package server
 
 import (
-	"math/rand"
+	"github.com/umtdemr/go-kafka-with-rest-case/pkg/logger"
+	"math/rand/v2"
 	"net/http"
 	"time"
 )
@@ -22,6 +23,9 @@ func (s *Server) Run() {
 func handler(w http.ResponseWriter, r *http.Request) {
 	randomWaitTime := time.Duration(rand.Float64()*3*1000) * time.Millisecond
 	time.Sleep(randomWaitTime)
+	fileLogger := logger.GetLogger()
+	timestamp := time.Now()
+	fileLogger.Printf("%s,%v,%v", r.Method, randomWaitTime.Milliseconds(), timestamp.Unix())
 }
 
 func Run() {
