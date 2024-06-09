@@ -39,6 +39,9 @@ func Run() {
 	serv.router.HandleFunc("PUT /api/put", handler)
 	serv.router.HandleFunc("DELETE /api/delete", handler)
 
+	fileServer := http.FileServer(http.Dir("./website"))
+	serv.router.Handle("/", fileServer)
+
 	srv = &http.Server{
 		Addr:    serv.ListenAddr,
 		Handler: serv.router,
