@@ -1,11 +1,15 @@
 package server
 
 import (
+	"context"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/logger"
+	"log"
 	"math/rand/v2"
 	"net/http"
 	"time"
 )
+
+var srv *http.Server
 
 type Server struct {
 	ListenAddr string
@@ -34,5 +38,23 @@ func Run() {
 	serv.router.HandleFunc("POST /api/post", handler)
 	serv.router.HandleFunc("PUT /api/put", handler)
 	serv.router.HandleFunc("DELETE /api/delete", handler)
-	serv.Run()
+
+	srv = &http.Server{
+		Addr:    serv.ListenAddr,
+		Handler: serv.router,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("HTTP server ListenAndServe: %v", err)
+		}
+	}()
+}
+
+func Shutdown(ctx context.Context, stop chan struct{}) {
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("HTTP server Shutdown: %v", err)
+	}
+	close(stop)
+	log.Println("HTTP server shutdown completed.")
 }
