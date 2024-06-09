@@ -13,7 +13,7 @@ import (
 	"github.com/IBM/sarama"
 )
 
-func StartConsumer() {
+func StartConsumer(consumerStarted chan<- bool) {
 	keepRunning := true
 	log.Println("Starting a new Sarama consumer")
 
@@ -62,6 +62,7 @@ func StartConsumer() {
 
 	<-consumer.ready // Await till the consumer has been set up
 	log.Println("Sarama consumer up and running!...")
+	consumerStarted <- true
 
 	sigusr1 := make(chan os.Signal, 1)
 	signal.Notify(sigusr1, syscall.SIGUSR1)

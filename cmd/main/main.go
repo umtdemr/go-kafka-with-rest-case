@@ -13,8 +13,10 @@ import (
 
 func main() {
 	stop := make(chan os.Signal, 1)
+	consumerStarted := make(chan bool, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	go kafka.StartConsumer()
+	go kafka.StartConsumer(consumerStarted)
+	<-consumerStarted
 
 	log.Println("Starting HTTP server...")
 
