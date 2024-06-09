@@ -29,7 +29,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(randomWaitTime)
 	fileLogger := logger.GetLogger()
 	timestamp := time.Now()
-	fileLogger.Printf("%s,%v,%v", r.Method, randomWaitTime.Milliseconds(), timestamp.Unix())
+	fileLogger.Printf("%s,%v,%v\n", r.Method, randomWaitTime.Milliseconds(), timestamp.Unix())
 }
 
 func Run() {
