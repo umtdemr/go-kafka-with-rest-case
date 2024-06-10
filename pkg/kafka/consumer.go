@@ -3,6 +3,7 @@ package kafka
 import (
 	"context"
 	"errors"
+	"github.com/umtdemr/go-kafka-with-rest-case/pkg/store"
 	"log"
 	"os"
 	"os/signal"
@@ -13,7 +14,7 @@ import (
 	"github.com/IBM/sarama"
 )
 
-func StartConsumer(consumerStarted chan<- bool) {
+func StartConsumer(consumerStarted chan<- bool, dbStore *store.Store) {
 	keepRunning := true
 	log.Println("Starting a new Sarama consumer")
 
@@ -29,6 +30,7 @@ func StartConsumer(consumerStarted chan<- bool) {
 	// Setup a Sarama consumer group
 	consumer := Consumer{
 		ready: make(chan bool),
+		store: dbStore,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -104,6 +106,7 @@ func toggleConsumptionFlow(client sarama.ConsumerGroup, isPaused *bool) {
 // Consumer represents a Sarama consumer group consumer
 type Consumer struct {
 	ready chan bool
+	store *store.Store
 }
 
 // Setup is run at the beginning of a new session, before ConsumeClaim

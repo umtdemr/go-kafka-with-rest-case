@@ -23,13 +23,20 @@ func main() {
 		log.Fatal("could not read the env file")
 	}
 
-	pgConn, pgConnErr := store.NewStore()
+	dbStore, pgConnErr := store.NewStore()
 
 	if pgConnErr != nil {
 		log.Fatal("could not connect to db")
 	}
 
-	defer pgConn.DB.Close(context.Background())
+	defer dbStore.Close()
+
+	// init tables
+	dbInitErr := dbStore.Init()
+
+	if dbInitErr != nil {
+		log.Fatal("error while initiating the tables")
+	}
 
 	// initialize the file and stdout logger
 	logger.GetLogger()
@@ -38,7 +45,7 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	consumerStarted := make(chan bool, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
-	go kafka.StartConsumer(consumerStarted)
+	go kafka.StartConsumer(consumerStarted, dbStore)
 	// wait kafka consumer
 	<-consumerStarted
 
