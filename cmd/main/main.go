@@ -23,11 +23,13 @@ func main() {
 		log.Fatal("could not read the env file")
 	}
 
-	_, pgConnErr := store.NewStore()
+	pgConn, pgConnErr := store.NewStore()
 
 	if pgConnErr != nil {
 		log.Fatal("could not connect to db")
 	}
+
+	defer pgConn.DB.Close(context.Background())
 
 	// initialize the file and stdout logger
 	logger.GetLogger()
