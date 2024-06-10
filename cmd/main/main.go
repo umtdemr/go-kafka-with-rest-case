@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"github.com/spf13/viper"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/kafka"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/logger"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/server"
+	"github.com/umtdemr/go-kafka-with-rest-case/pkg/storage"
 	"log"
 	"os"
 	"os/signal"
@@ -13,12 +15,32 @@ import (
 )
 
 func main() {
+	// read env
+	viper.SetConfigFile(".env")
+	errReadConfig := viper.ReadInConfig()
+
+	if errReadConfig != nil {
+		log.Fatal("could not read the env file")
+	}
+
+	_, pgConnErr := storage.NewStorage()
+
+	if pgConnErr != nil {
+		log.Fatal("could not connect to db")
+	}
+
+	// initialize the file and stdout logger
 	logger.GetLogger()
+
+	// block app with the stop chan
 	stop := make(chan os.Signal, 1)
 	consumerStarted := make(chan bool, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
 	go kafka.StartConsumer(consumerStarted)
+	// wait kafka consumer
 	<-consumerStarted
+
+	// start kafka producer
 	go kafka.StartProducer()
 
 	log.Println("Starting HTTP server...")
