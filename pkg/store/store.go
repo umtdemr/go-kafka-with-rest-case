@@ -1,4 +1,4 @@
-package storage
+package store
 
 import (
 	"context"
@@ -6,12 +6,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Storage struct {
+type Store struct {
 	DB *pgx.Conn
 }
 
 // NewStorage creates a postgresql connection with pgx
-func NewStorage() (*Storage, error) {
+func NewStore() (*Store, error) {
 	connStr := viper.Get("postgres").(string)
 	conn, err := pgx.Connect(context.Background(), connStr)
 
@@ -19,7 +19,7 @@ func NewStorage() (*Storage, error) {
 		return nil, err
 	}
 
-	return &Storage{
+	return &Store{
 		DB: conn,
 	}, nil
 }

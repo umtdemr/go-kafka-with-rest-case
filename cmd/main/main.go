@@ -6,7 +6,7 @@ import (
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/kafka"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/logger"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/server"
-	"github.com/umtdemr/go-kafka-with-rest-case/pkg/storage"
+	"github.com/umtdemr/go-kafka-with-rest-case/pkg/store"
 	"log"
 	"os"
 	"os/signal"
@@ -23,7 +23,7 @@ func main() {
 		log.Fatal("could not read the env file")
 	}
 
-	_, pgConnErr := storage.NewStorage()
+	_, pgConnErr := store.NewStore()
 
 	if pgConnErr != nil {
 		log.Fatal("could not connect to db")
