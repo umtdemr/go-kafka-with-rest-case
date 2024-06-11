@@ -57,3 +57,29 @@ func (s *Store) CreateLog(data *CreateLogData) error {
 	_, err := s.db.Exec(context.Background(), query, args)
 	return err
 }
+
+func (s *Store) GetAllLogs() ([]CreateLogData, error) {
+	query := `SELECT operation, request_time, timestamp FROM "api_logs"`
+	rows, err := s.db.Query(context.Background(), query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	allLogs := []CreateLogData{}
+
+	for rows.Next() {
+		var singleLog CreateLogData
+
+		err := rows.Scan(&singleLog.Operation, &singleLog.RequestTime, &singleLog.Timestamp)
+
+		if err != nil {
+			return nil, err
+		}
+		allLogs = append(allLogs, singleLog)
+	}
+
+	return allLogs, nil
+}
