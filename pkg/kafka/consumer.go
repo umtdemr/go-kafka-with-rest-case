@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -132,8 +133,28 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 				log.Printf("message channel was closed")
 				return nil
 			}
-			log.Printf("Message claimed: value = %s, timestamp = %v, topic = %s", string(message.Value), message.Timestamp, message.Topic)
+
+			value := string(message.Value)
+			parsed := strings.Split(value, ",")
 			session.MarkMessage(message, "")
+
+			if len(parsed) != 3 {
+				continue
+			}
+
+			requestTime, requestTimeParseErr := strconv.Atoi(parsed[1])
+			timestamp, timestampParseErr := strconv.Atoi(parsed[2])
+
+			if requestTimeParseErr != nil || timestampParseErr != nil {
+				continue
+			}
+
+			consumer.store.CreateLog(&store.CreateLogData{
+				Operation:   parsed[0],
+				RequestTime: requestTime,
+				Timestamp:   timestamp,
+			})
+
 		case <-session.Context().Done():
 			return nil
 		}
