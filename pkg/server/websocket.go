@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/store"
 	"log"
@@ -16,6 +17,11 @@ var upgrader = websocket.Upgrader{
 
 type websocketServer struct {
 	store *store.Store
+}
+
+type WebsocketMessage struct {
+	Action string `json:"action"`
+	Data   any    `json:"data"`
 }
 
 func newWebsocketServer(store *store.Store) *websocketServer {
@@ -38,6 +44,15 @@ func (wsServer *websocketServer) HandleConnections(w http.ResponseWriter, r *htt
 			switch userMsg {
 			case "getData":
 				// get the logs and send them to the user
+				logData, getAllLogErr := wsServer.store.GetAllLogs()
+				if getAllLogErr != nil {
+					continue
+				}
+				val, _ := json.Marshal(&WebsocketMessage{
+					Action: "allLogs",
+					Data:   logData,
+				})
+				NotifyClients(string(val))
 			}
 		}
 		if err != nil {

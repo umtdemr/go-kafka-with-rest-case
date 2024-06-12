@@ -2,7 +2,9 @@ package kafka
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"github.com/umtdemr/go-kafka-with-rest-case/pkg/server"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/store"
 	"log"
 	"os"
@@ -149,11 +151,19 @@ func (consumer *Consumer) ConsumeClaim(session sarama.ConsumerGroupSession, clai
 				continue
 			}
 
-			consumer.store.CreateLog(&store.CreateLogData{
+			logData := &store.CreateLogData{
 				Operation:   parsed[0],
 				RequestTime: requestTime,
 				Timestamp:   timestamp,
+			}
+			consumer.store.CreateLog(logData)
+
+			// send created log to the clients
+			val, _ := json.Marshal(&server.WebsocketMessage{
+				Action: "singleLog",
+				Data:   logData,
 			})
+			server.NotifyClients(string(val))
 
 		case <-session.Context().Done():
 			return nil
