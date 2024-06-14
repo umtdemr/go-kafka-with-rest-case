@@ -64,6 +64,14 @@ function setupGraph(data) {
         yAxis: {
             type: 'value'
         },
+        dataZoom: [
+            {
+                id: 'dataZoomX',
+                type: 'slider',
+                xAxisIndex: [0],
+                filterMode: 'filter'
+            },
+        ],
     };
     option && chartInstance.setOption(option);
     
