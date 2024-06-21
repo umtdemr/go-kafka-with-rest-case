@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"github.com/umtdemr/go-kafka-with-rest-case/pkg/logger"
+	"github.com/umtdemr/go-kafka-with-rest-case/pkg/store"
 	"log"
 	"math/rand/v2"
 	"net/http"
@@ -32,8 +33,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fileLogger.Printf("%s,%v,%v\n", r.Method, randomWaitTime.Milliseconds(), timestamp.Unix())
 }
 
-func Run() {
-	serv := NewServer(":8000")
+func Run(store *store.Store) {
+	serv := NewServer(":8080")
 	serv.router.HandleFunc("GET /api/get", handler)
 	serv.router.HandleFunc("POST /api/post", handler)
 	serv.router.HandleFunc("PUT /api/put", handler)
@@ -46,6 +47,7 @@ func Run() {
 		Addr:    serv.ListenAddr,
 		Handler: serv.router,
 	}
+	StartWebSocketServer(store, serv)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
