@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      db:
+        condition: service_started
+    env_file:
+      - .env
+
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=kafka
+      - POSTGRES_PASSWORD=kafka
+      - POSTGRES_DB=kafka
+    ports:
+      - "5432:5432"
+        
+  zookeeper:
+    image: zookeeper:latest
+    ports:
+      - "2181:2181"
+  
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    depends_on: 
+      - zookeeper
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: [ "CMD", "kafka-topics", "--list", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      

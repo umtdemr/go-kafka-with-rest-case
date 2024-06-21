@@ -82,13 +82,9 @@ func NotifyClients(message string) {
 	broadcast <- message
 }
 
-func StartWebSocketServer(store *store.Store) {
+func StartWebSocketServer(store *store.Store, srv *Server) {
 	wsServer := newWebsocketServer(store)
-	http.HandleFunc("/ws", wsServer.HandleConnections)
+	srv.router.HandleFunc("/ws", wsServer.HandleConnections)
 	go HandleMessages()
-
-	log.Println("WebSocket server started on :8081")
-	go func() {
-		log.Fatal(http.ListenAndServe(":8081", nil))
-	}()
+	log.Println("WebSocket server started on :8080")
 }

@@ -10,7 +10,7 @@ const OPERATIONS = {
 }
 
 function main() {
-    const wsUrl = "ws://127.0.0.1:8081/ws"
+    const wsUrl = "ws://127.0.0.1:8080/ws"
     const ws = new WebSocket(wsUrl)
     ws.onerror = err => {
         console.log('an error is occurred while doing that', err)

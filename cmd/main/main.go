@@ -54,8 +54,7 @@ func main() {
 
 	log.Println("Starting HTTP server...")
 
-	server.Run()
-	server.StartWebSocketServer(dbStore)
+	server.Run(dbStore)
 	// Wait for termination signal
 	<-stop
 	log.Println("Shutting down gracefully...")
